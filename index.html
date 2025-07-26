@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple 8 Supplier Rates Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .calculator-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: "🧮";
+            font-size: 1.8rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group select, .form-group input {
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+            margin-right: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40,167,69,0.4);
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .price {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #856404;
+        }
+
+        .note strong {
+            color: #b45309;
+        }
+
+        .edit-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Triple 8 Supplier Rates Calculator</h1>
+            <p>Professional Tour & Transfer Rate Calculator for Thailand</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('calculator')">Rate Calculator</button>
+            <button class="tab" onclick="showTab('price-editor')">Edit Prices</button>
+            <button class="tab" onclick="showTab('guide-services')">Guide Services</button>
+            <button class="tab" onclick="showTab('krabi-transfers')">Krabi Transfers</button>
+            <button class="tab" onclick="showTab('phuket-transfers')">Phuket Transfers</button>
+            <button class="tab" onclick="showTab('krabi-tours')">Krabi Tours</button>
+            <button class="tab" onclick="showTab('phuket-tours')">Phuket Tours</button>
+            <button class="tab" onclick="showTab('ferry-rates')">Ferry & Speedboat</button>
+        </div>
+
+        <!-- Calculator Tab -->
+        <div id="calculator" class="tab-content active">
+            <div class="calculator-section">
+                <h2 class="section-title">Service Calculator</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="serviceType">Service Category</label>
+                        <select id="serviceType" onchange="updateServices()">
+                            <option value="">Select Category</option>
+                            <option value="guide">Guide Services</option>
+                            <option value="krabi-transfer">Krabi Transfers</option>
+                            <option value="phuket-transfer">Phuket Transfers</option>
+                            <option value="krabi-tour">Krabi Tours</option>
+                            <option value="phuket-tour">Phuket Tours</option>
+                            <option value="ferry">Ferry & Speedboat</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="serviceName">Service</label>
+                        <select id="serviceName" onchange="updatePricing()">
+                            <option value="">Select Service</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="adults">Number of Adults</label>
+                        <input type="number" id="adults" min="0" value="2" onchange="calculateTotal()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="children">Number of Children</label>
+                        <input type="number" id="children" min="0" value="0" onchange="calculateTotal()">
+                    </div>
+                    
+                    <div class="form-group" id="vehicleGroup" style="display: none;">
+                        <label for="vehicleType">Vehicle Type</label>
+                        <select id="vehicleType" onchange="calculateTotal()">
+                            <option value="">Select Vehicle</option>
+                            <option value="car">Car</option>
+                            <option value="van">Van</option>
+                            <option value="suv">SUV</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="extraHours">Extra Hours</label>
+                        <input type="number" id="extraHours" min="0" value="0" onchange="calculateTotal()">
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateTotal()">Calculate Total Cost</button>
+                
+                <div id="results" class="result-section">
+                    <h3>Cost Breakdown</h3>
+                    <div id="resultDetails"></div>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>Important Notes:</strong><br>
+                • Child pricing applies to ages 3-11 years (varies by service)<br>
+                • National Park fees are paid directly at destination<br>
+                • Extra hour charges: 300 THB/hour<br>
+                • Night time surcharge (22:00-04:00): 400 THB/hour<br>
+                • 100% charge for no-shows
+            </div>
+        </div>
+
+        <!-- Price Editor Tab -->
+        <div id="price-editor" class="tab-content">
+            <div class="calculator-section">
+                <h2 class="section-title">💰 Price Editor</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editCategory">Service Category</label>
+                        <select id="editCategory" onchange="loadEditServices()">
+                            <option value="">Select Category to Edit</option>
+                            <option value="guide">Guide Services</option>
+                            <option value="krabi-transfer">Krabi Transfers</option>
+                            <option value="phuket-transfer">Phuket Transfers</option>
+                            <option value="krabi-tour">Krabi Tours</option>
+                            <option value="phuket-tour">Phuket Tours</option>
+                            <option value="ferry">Ferry & Speedboat</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editService">Service to Edit</label>
+                        <select id="editService" onchange="loadServicePrices()">
+                            <option value="">Select Service</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="priceEditForm" class="edit-form" style="display: none;">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">💸 Edit Pricing for: <span id="selectedServiceName"></span></h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group" id="adultPriceGroup" style="display: none;">
+                            <label for="editAdultPrice">Adult Price (THB)</label>
+                            <input type="number" id="editAdultPrice" min="0" placeholder="Adult price">
+                        </div>
+                        
+                        <div class="form-group" id="childPriceGroup" style="display: none;">
+                            <label for="editChildPrice">Child Price (THB)</label>
+                            <input type="number" id="editChildPrice" min="0" placeholder="Child price">
+                        </div>
+                        
+                        <div class="form-group" id="carPriceGroup" style="display: none;">
+                            <label for="editCarPrice">Car Price (THB)</label>
+                            <input type="number" id="editCarPrice" min="0" placeholder="Car price">
+                        </div>
+                        
+                        <div class="form-group" id="vanPriceGroup" style="display: none;">
+                            <label for="editVanPrice">Van Price (THB)</label>
+                            <input type="number" id="editVanPrice" min="0" placeholder="Van price">
+                        </div>
+                        
+                        <div class="form-group" id="suvPriceGroup" style="display: none;">
+                            <label for="editSuvPrice">SUV Price (THB)</label>
+                            <input type="number" id="editSuvPrice" min="0" placeholder="SUV price">
+                        </div>
+                        
+                        <div class="form-group" id="guidePriceGroup" style="display: none;">
+                            <label for="editGuidePrice">Guide Fee (THB)</label>
+                            <input type="number" id="editGuidePrice" min="0" placeholder="Guide fee">
+                        </div>
+                        
+                        <div class="form-group" id="npAdultGroup" style="display: none;">
+                            <label for="editNpAdult">National Park Fee - Adult (THB)</label>
+                            <input type="number" id="editNpAdult" min="0" placeholder="NP fee adult">
+                        </div>
+                        
+                        <div class="form-group" id="npChildGroup" style="display: none;">
+                            <label for="editNpChild">National Park Fee - Child (THB)</label>
+                            <input type="number" id="editNpChild" min="0" placeholder="NP fee child">
+                        </div>
+
+                        <div class="form-group" id="costPriceGroup" style="display: none;">
+                            <label for="editCostPrice">Cost Price (THB)</label>
+                            <input type="number" id="editCostPrice" min="0" placeholder="Your cost price">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                        <button class="calculate-btn" onclick="updatePrices()" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+                            💾 Update Prices
+                        </button>
+                        <button class="calculate-btn" onclick="resetPrices()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                            🔄 Reset to Default
+                        </button>
+                        <button class="calculate-btn" onclick="showProfitMargin()" style="background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%);">
+                            📊 Show Profit Margin
+                        </button>
+                    </div>
+                    
+                    <div id="updateMessage" class="message"></div>
+                    <div id="profitInfo" class="message" style="background: #e7f3ff; color: #004085; border: 1px solid #b3d7ff;"></div>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>💡 Price Editor Instructions:</strong><br>
+                • Select a service category and specific service to edit pricing<br>
+                • Update any relevant prices and click "Update Prices" to save changes<br>
+                • Add cost prices to track profit margins automatically<br>
+                • Changes will immediately reflect in the calculator and rate tables<br>
+                • Use "Reset to Default" to restore original pricing<br>
+                • All prices are in Thai Baht (THB)
+            </div>
+        </div>
+
+        <!-- Guide Services Tab -->
+        <div id="guide-services" class="tab-content">
+            <h2 class="section-title">👨‍🏫 Guide Services (Per Guide)</h2>
+            <table class="data-table" id="guideTable">
+                <thead>
+                    <tr>
+                        <th>Service Type</th>
+                        <th>Rate (THB/Guide)</th>
+                        <th>Cost Price (THB)</th>
+                        <th>Profit Margin</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="guideTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Krabi Transfers Tab -->
+        <div id="krabi-transfers" class="tab-content">
+            <h2 class="section-title">🚗 Krabi Transfer Rates</h2>
+            <p><strong>English Speaking Guides & Private Transfers</strong></p>
+            
+            <h3>From Krabi Airport</h3>
+            <table class="data-table" id="krabiTransferTable">
+                <thead>
+                    <tr><th>Destination</th><th>Car (THB)</th><th>Van (THB)</th><th>Cost Price</th><th>Profit</th></tr>
+                </thead>
+                <tbody id="krabiTransferTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phuket Transfers Tab -->
+        <div id="phuket-transfers" class="tab-content">
+            <h2 class="section-title">🏝️ Phuket Transfer Rates</h2>  
+            <p><strong>Private Vehicles (unless specified SIC - Seat-in-coach)</strong></p>
+            
+            <h3>Krabi Airport to Phuket</h3>
+            <table class="data-table" id="phuketTransferTable">
+                <thead>
+                    <tr><th>Destination</th><th>Car (THB)</th><th>Van (THB)</th><th>Cost Price</th><th>Profit</th></tr>
+                </thead>
+                <tbody id="phuketTransferTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Krabi Tours Tab -->
+        <div id="krabi-tours" class="tab-content">
+            <h2 class="section-title">🏖️ Krabi Tour Excursion Rates</h2>
+            
+            <table class="data-table" id="krabiTourTable">
+                <thead>
+                    <tr><th>Tour Package</th><th>Adult (THB)</th><th>Child (THB)</th><th>Cost Price</th><th>Profit Margin</th><th>Notes</th></tr>
+                </thead>
+                <tbody id="krabiTourTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phuket Tours Tab -->
+        <div id="phuket-tours" class="tab-content">
+            <h2 class="section-title">🎭 Phuket Tour Excursion Rates</h2>
+            
+            <table class="data-table" id="phuketTourTable">
+                <thead>
+                    <tr><th>Show Package</th><th>Adult (THB)</th><th>Child (THB)</th><th>Cost Price</th><th>Profit Margin</th><th>Notes</th></tr>
+                </thead>
+                <tbody id="phuketTourTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ferry Rates Tab -->
+        <div id="ferry-rates" class="tab-content">
+            <h2 class="section-title">⛴️ Ferry & Speedboat Transfers</h2>
+            <p><strong>Phuket - Krabi / Phi Phi Routes</strong></p>
+            
+            <table class="data-table" id="ferryTable">
+                <thead>
+                    <tr><th>Route</th><th>Adult (THB)</th><th>Child (THB)</th><th>Cost Price</th><th>Profit Margin</th><th>Schedule</th></tr>
+                </thead>
+                <tbody id="ferryTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Service data structure with original backup
+        const originalServiceData = {
+            guide: [
+                {name: "Transfer service in&out (FIT)", adult: 0, child: 0, guide: 500, vehicle: false, costPrice: 0},
+                {name: "Half day City Tour (FIT)", adult: 0, child: 0, guide: 500, vehicle: false, costPrice: 0},
+                {name: "Full day City Tour (FIT)", adult: 0, child: 0, guide: 1200, vehicle: false, costPrice: 0},
+                {name: "Full day trip (FIT)", adult: 0, child: 0, guide: 1200, vehicle: false, costPrice: 0},
+                {name: "Full day City Tour & Night Tour or dinner", adult: 0, child: 0, guide: 1500, vehicle: false, costPrice: 0},
+                {name: "Standard full day & full night", adult: 0, child: 0, guide: 1900, vehicle: false, costPrice: 0},
+                {name: "Full day trip (FIT)-KBV", adult: 0, child: 0, guide: 1500, vehicle: false, costPrice: 0}
+            ],
+            "krabi-transfer": [
+                {name: "Krabi Airport to Krabi Town", adult: 0, child: 0, car: 500, van: 600, vehicle: true, costPrice: 0},
+                {name: "Krabi Airport to Ao-Nang/Ao Nam Mao", adult: 0, child: 0, car: 550, van: 650, vehicle: true, costPrice: 0},
+                {name: "Krabi Airport to Klong Muang/Tubkaak Beach", adult: 0, child: 0, car: 700, van: 800, vehicle: true, costPrice: 0},
+                {name: "Krabi Airport to Tha Lane", adult: 0, child: 0, car: 1100, van: 1300, vehicle: true, costPrice: 0}
+            ],
+            "phuket-transfer": [
+                {name: "Krabi Airport to Phuket Town", adult: 0, child: 0, car: 2200, van: 2500, vehicle: true, costPrice: 0},
+                {name: "Krabi Airport to Patong Hotel", adult: 0, child: 0, car: 2300, van: 2500, vehicle: true, costPrice: 0},
+                {name: "Move hotel 1 way - Patong area", adult: 0, child: 0, car: 400, van: 500, vehicle: true, costPrice: 0},
+                {name: "Move hotel 1 way - Kata, Karon area", adult: 0, child: 0, car: 500, van: 600, vehicle: true, costPrice: 0}
+            ],
+            "krabi-tour": [
+                {name: "Phi Phi Islands Tour - SpeedBoat + Buffet Lunch + Transfer", adult: 1100, child: 1000, npFeeAdl: 400, npFeeChd: 200, vehicle: false, costPrice: 0},
+                {name: "Krabi 4 Islands - Speedboat", adult: 800, child: 600, npFeeAdl: 200, npFeeChd: 100, vehicle: false, costPrice: 0},
+                {name: "Krabi 4 Islands - Longtail Boat", adult: 600, child: 500, npFeeAdl: 200, npFeeChd: 100, vehicle: false, costPrice: 0},
+                {name: "Hong Island Tour - Longtail Boat", adult: 900, child: 800, npFeeAdl: 300, npFeeChd: 150, vehicle: false, costPrice: 0},
+                {name: "Hong Island Tour - Speedboat", adult: 1100, child: 1000, npFeeAdl: 300, npFeeChd: 150, vehicle: false, costPrice: 0},
+                {name: "Aonang Elephant Sanctuary", adult: 2100, child: 1700, vehicle: false, costPrice: 0}
+            ],
+            "phuket-tour": [
+                {name: "Phuket Fantasea - Show Only", adult: 1450, child: 1450, vehicle: false, costPrice: 0},
+                {name: "Phuket Fantasea - Show + Transfer", adult: 1700, child: 1700, vehicle: false, costPrice: 0},
+                {name: "Phuket Fantasea - Show + Dinner + Transfer", adult: 1900, child: 1800, vehicle: false, costPrice: 0},
+                {name: "Simon Cabaret - Show Only", adult: 1300, child: 1300, vehicle: false, costPrice: 0},
+                {name: "Simon Cabaret - Show + Transfer", adult: 1650, child: 1650, vehicle: false, costPrice: 0},
+                {name: "Phi Phi Island Tour - Big Boat Economy", adult: 900, child: 800, npFeeAdl: 400, npFeeChd: 200, vehicle: false, costPrice: 0},
+                {name: "Phi Phi Island Tour - Speed Boat Standard", adult: 950, child: 850, npFeeAdl: 400, npFeeChd: 200, vehicle: false, costPrice: 0}
+            ],
+            ferry: [
+                {name: "Phuket to Ao Nang", adult: 600, child: 500, vehicle: false, costPrice: 0},
+                {name: "Ao Nang to Phuket", adult: 600, child: 500, vehicle: false, costPrice: 0},
+                {name: "Phuket to Phi Phi (Ton Sai) - Private", adult: 500, child: 450, vehicle: false, costPrice: 0},
+                {name: "Phuket to Phi Phi (Ton Sai) - SIC", adult: 800, child: 700, vehicle: false, costPrice: 0},
+                {name: "Phuket to Phi Phi (LaemTong) - Private", adult: 750, child: 700, vehicle: false, costPrice: 0},
+                {name: "Phuket to Phi Phi (LaemTong) - SIC", adult: 1050, child: 900, vehicle: false, costPrice: 0}
+            ]
+        };
+
+        // Deep clone for working data
+        let serviceData = JSON.parse(JSON.stringify(originalServiceData));
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+
+            // Update tables when switching tabs
+            updateAllTables();
+        }
+
+        function updateServices() {
+            const serviceType = document.getElementById('serviceType').value;
+            const serviceName = document.getElementById('serviceName');
+            const vehicleGroup = document.getElementById('vehicleGroup');
+            
+            // Clear previous options
+            serviceName.innerHTML = '<option value="">Select Service</option>';
+            
+            if (serviceType && serviceData[serviceType]) {
+                serviceData[serviceType].forEach((service, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = service.name;
+                    serviceName.appendChild(option);
+                });
+                
+                // Show/hide vehicle selection based on service type
+                const hasVehicleServices = serviceData[serviceType].some(service => service.vehicle);
+                vehicleGroup.style.display = hasVehicleServices ? 'block' : 'none';
+            }
+        }
+
+        function updatePricing() {
+            const serviceType = document.getElementById('serviceType').value;
+            const serviceIndex = document.getElementById('serviceName').value;
+            const vehicleGroup = document.getElementById('vehicleGroup');
+            
+            if (serviceType && serviceIndex !== '' && serviceData[serviceType][serviceIndex]) {
+                const service = serviceData[serviceType][serviceIndex];
+                vehicleGroup.style.display = service.vehicle ? 'block' : 'none';
+            }
+        }
+
+        function calculateTotal() {
+            const serviceType = document.getElementById('serviceType').value;
+            const serviceIndex = document.getElementById('serviceName').value;
+            const adults = parseInt(document.getElementById('adults').value) || 0;
+            const children = parseInt(document.getElementById('children').value) || 0;
+            const vehicleType = document.getElementById('vehicleType').value;
+            const extraHours = parseInt(document.getElementById('extraHours').value) || 0;
+            
+            if (!serviceType || serviceIndex === '') {
+                alert('Please select a service category and service');
+                return;
+            }
+            
+            const service = serviceData[serviceType][serviceIndex];
+            let total = 0;
+            let breakdown = [];
+            
+            // Calculate service costs
+            if (service.adult && adults > 0) {
+                const adultCost = adults * service.adult;
+                total += adultCost;
+                breakdown.push(`Adults (${adults} × ${service.adult} THB): ${adultCost} THB`);
+            }
+            
+            if (service.child && children > 0) {
+                const childCost = children * service.child;
+                total += childCost;
+                breakdown.push(`Children (${children} × ${service.child} THB): ${childCost} THB`);
+            }
+            
+            if (service.guide) {
+                total += service.guide;
+                breakdown.push(`Guide Service: ${service.guide} THB`);
+            }
+            
+            // Vehicle costs
+            if (service.vehicle && vehicleType) {
+                const vehicleCost = service[vehicleType] || 0;
+                if (vehicleCost > 0) {
+                    total += vehicleCost;
+                    breakdown.push(`${vehicleType.toUpperCase()} Transfer: ${vehicleCost} THB`);
+                }
+            }
+            
+            // National Park Fees (if applicable)
+            if (service.npFeeAdl && adults > 0) {
+                const npAdultFee = adults * service.npFeeAdl;
+                breakdown.push(`National Park Fee - Adults (${adults} × ${service.npFeeAdl} THB): ${npAdultFee} THB (Pay at destination)`);
+            }
+            
+            if (service.npFeeChd && children > 0) {
+                const npChildFee = children * service.npFeeChd;
+                breakdown.push(`National Park Fee - Children (${children} × ${service.npFeeChd} THB): ${npChildFee} THB (Pay at destination)`);
+            }
+            
+            // Extra hours
+            if (extraHours > 0) {
+                const extraCost = extraHours * 300;
+                total += extraCost;
+                breakdown.push(`Extra Hours (${extraHours} × 300 THB): ${extraCost} THB`);
+            }
+            
+            // Display results
+            displayResults(breakdown, total, service.name, service.costPrice || 0);
+        }
+
+        function displayResults(breakdown, total, serviceName, costPrice) {
+            const results = document.getElementById('results');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            let html = `<div class="result-item"><strong>Service:</strong> <span>${serviceName}</span></div>`;
+            
+            breakdown.forEach(item => {
+                const isNPFee = item.includes('Pay at destination');
+                html += `<div class="result-item">${item}${isNPFee ? ' <small>(Not included in total)</small>' : ''}</div>`;
+            });
+
+            // Show cost price and profit if available
+            if (costPrice > 0) {
+                const profit = total - costPrice;
+                const margin = ((profit / total) * 100).toFixed(1);
+                html += `<div class="result-item"><strong>Cost Price:</strong> <span>${costPrice.toLocaleString()} THB</span></div>`;
+                html += `<div class="result-item"><strong>Profit:</strong> <span>${profit.toLocaleString()} THB (${margin}%)</span></div>`;
+            }
+            
+            html += `<div class="result-item"><strong>TOTAL SELLING PRICE:</strong> <span>${total.toLocaleString()} THB</span></div>`;
+            
+            resultDetails.innerHTML = html;
+            results.classList.add('show');
+        }
+
+        // Price Editor Functions
+        function loadEditServices() {
+            const category = document.getElementById('editCategory').value;
+            const serviceSelect = document.getElementById('editService');
+            const editForm = document.getElementById('priceEditForm');
+            
+            serviceSelect.innerHTML = '<option value="">Select Service</option>';
+            editForm.style.display = 'none';
+            
+            if (category && serviceData[category]) {
+                serviceData[category].forEach((service, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = service.name;
+                    serviceSelect.appendChild(option);
+                });
+            }
+        }
+
+        function loadServicePrices() {
+            const category = document.getElementById('editCategory').value;
+            const serviceIndex = document.getElementById('editService').value;
+            const editForm = document.getElementById('priceEditForm');
+            
+            if (!category || serviceIndex === '') {
+                editForm.style.display = 'none';
+                return;
+            }
+            
+            const service = serviceData[category][serviceIndex];
+            
+            // Update service name display
+            document.getElementById('selectedServiceName').textContent = service.name;
+            
+            // Show/hide relevant price fields
+            document.getElementById('adultPriceGroup').style.display = service.adult !== undefined ? 'block' : 'none';
+            document.getElementById('childPriceGroup').style.display = service.child !== undefined ? 'block' : 'none';
+            document.getElementById('carPriceGroup').style.display = service.car !== undefined ? 'block' : 'none';
+            document.getElementById('vanPriceGroup').style.display = service.van !== undefined ? 'block' : 'none';
+            document.getElementById('suvPriceGroup').style.display = service.suv !== undefined ? 'block' : 'none';
+            document.getElementById('guidePriceGroup').style.display = service.guide !== undefined ? 'block' : 'none';
+            document.getElementById('npAdultGroup').style.display = service.npFeeAdl !== undefined ? 'block' : 'none';
+            document.getElementById('npChildGroup').style.display = service.npFeeChd !== undefined ? 'block' : 'none';
+            document.getElementById('costPriceGroup').style.display = 'block'; // Always show cost price
+            
+            // Populate current values
+            document.getElementById('editAdultPrice').value = service.adult || '';
+            document.getElementById('editChildPrice').value = service.child || '';
+            document.getElementById('editCarPrice').value = service.car || '';
+            document.getElementById('editVanPrice').value = service.van || '';
+            document.getElementById('editSuvPrice').value = service.suv || '';
+            document.getElementById('editGuidePrice').value = service.guide || '';
+            document.getElementById('editNpAdult').value = service.npFeeAdl || '';
+            document.getElementById('editNpChild').value = service.npFeeChd || '';
+            document.getElementById('editCostPrice').value = service.costPrice || '';
+            
+            editForm.style.display = 'block';
+        }
+
+        function updatePrices() {
+            const category = document.getElementById('editCategory').value;
+            const serviceIndex = document.getElementById('editService').value;
+            
+            if (!category || serviceIndex === '') {
+                showUpdateMessage('Please select a service to update', 'error');
+                return;
+            }
+            
+            const service = serviceData[category][serviceIndex];
+            
+            // Update prices from form inputs
+            const adultPrice = document.getElementById('editAdultPrice').value;
+            const childPrice = document.getElementById('editChildPrice').value;
+            const carPrice = document.getElementById('editCarPrice').value;
+            const vanPrice = document.getElementById('editVanPrice').value;
+            const suvPrice = document.getElementById('editSuvPrice').value;
+            const guidePrice = document.getElementById('editGuidePrice').value;
+            const npAdult = document.getElementById('editNpAdult').value;
+            const npChild = document.getElementById('editNpChild').value;
+            const costPrice = document.getElementById('editCostPrice').value;
+            
+            if (adultPrice !== '') service.adult = parseInt(adultPrice);
+            if (childPrice !== '') service.child = parseInt(childPrice);
+            if (carPrice !== '') service.car = parseInt(carPrice);
+            if (vanPrice !== '') service.van = parseInt(vanPrice);
+            if (suvPrice !== '') service.suv = parseInt(suvPrice);
+            if (guidePrice !== '') service.guide = parseInt(guidePrice);
+            if (npAdult !== '') service.npFeeAdl = parseInt(npAdult);
+            if (npChild !== '') service.npFeeChd = parseInt(npChild);
+            if (costPrice !== '') service.costPrice = parseInt(costPrice);
+            
+            showUpdateMessage('✅ Prices updated successfully! Changes are now active in the calculator.', 'success');
+            
+            // Update rate tables
+            updateAllTables();
+        }
+
+        function resetPrices() {
+            const category = document.getElementById('editCategory').value;
+            const serviceIndex = document.getElementById('editService').value;
+            
+            if (!category || serviceIndex === '') {
+                showUpdateMessage('Please select a service to reset', 'error');
+                return;
+            }
+            
+            // Reset to original values
+            serviceData[category][serviceIndex] = JSON.parse(JSON.stringify(originalServiceData[category][serviceIndex]));
+            
+            // Reload the form with original values
+            loadServicePrices();
+            
+            showUpdateMessage('🔄 Prices reset to default values successfully!', 'success');
+            updateAllTables();
+        }
+
+        function showProfitMargin() {
+            const category = document.getElementById('editCategory').value;
+            const serviceIndex = document.getElementById('editService').value;
+            
+            if (!category || serviceIndex === '') {
+                showUpdateMessage('Please select a service first', 'error');
+                return;
+            }
+
+            const service = serviceData[category][serviceIndex];
+            const profitDiv = document.getElementById('profitInfo');
+            
+            if (!service.costPrice || service.costPrice === 0) {
+                profitDiv.innerHTML = '💡 <strong>Add a cost price to see profit margins!</strong>';
+                profitDiv.style.display = 'block';
+                return;
+            }
+
+            let analysis = `<strong>📊 Profit Analysis for: ${service.name}</strong><br><br>`;
+            
+            if (service.adult) {
+                const profit = service.adult - service.costPrice;
+                const margin = ((profit / service.adult) * 100).toFixed(1);
+                analysis += `Adult: Selling ${service.adult} THB - Cost ${service.costPrice} THB = Profit ${profit} THB (${margin}%)<br>`;
+            }
+            
+            if (service.child) {
+                const profit = service.child - service.costPrice;
+                const margin = ((profit / service.child) * 100).toFixed(1);
+                analysis += `Child: Selling ${service.child} THB - Cost ${service.costPrice} THB = Profit ${profit} THB (${margin}%)<br>`;
+            }
+            
+            if (service.car) {
+                const profit = service.car - service.costPrice;
+                const margin = ((profit / service.car) * 100).toFixed(1);
+                analysis += `Car: Selling ${service.car} THB - Cost ${service.costPrice} THB = Profit ${profit} THB (${margin}%)<br>`;
+            }
+            
+            if (service.van) {
+                const profit = service.van - service.costPrice;
+                const margin = ((profit / service.van) * 100).toFixed(1);
+                analysis += `Van: Selling ${service.van} THB - Cost ${service.costPrice} THB = Profit ${profit} THB (${margin}%)<br>`;
+            }
+            
+            if (service.guide) {
+                const profit = service.guide - service.costPrice;
+                const margin = ((profit / service.guide) * 100).toFixed(1);
+                analysis += `Guide: Selling ${service.guide} THB - Cost ${service.costPrice} THB = Profit ${profit} THB (${margin}%)<br>`;
+            }
+
+            profitDiv.innerHTML = analysis;
+            profitDiv.style.display = 'block';
+        }
+
+        function showUpdateMessage(message, type) {
+            const messageDiv = document.getElementById('updateMessage');
+            messageDiv.style.display = 'block';
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateAllTables() {
+            updateGuideTable();
+            updateKrabiTransferTable();
+            updatePhuketTransferTable();
+            updateKrabiTourTable();
+            updatePhuketTourTable();
+            updateFerryTable();
+        }
+
+        function calculateProfit(sellPrice, costPrice) {
+            if (!costPrice || costPrice === 0) return '-';
+            const profit = sellPrice - costPrice;
+            const margin = ((profit / sellPrice) * 100).toFixed(1);
+            return `${profit} THB (${margin}%)`;
+        }
+
+        function updateGuideTable() {
+            const tbody = document.getElementById('guideTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            serviceData.guide.forEach(service => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${service.name}</td>
+                    <td class="price">${service.guide}</td>
+                    <td>${service.costPrice || 0}</td>
+                    <td>${calculateProfit(service.guide, service.costPrice)}</td>
+                    <td>Per guide</td>
+                `;
+            });
+        }
+
+        function updateKrabiTransferTable() {
+            const tbody = document.getElementById('krabiTransferTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            serviceData['krabi-transfer'].forEach(service => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${service.name.replace('Krabi Airport to ', '')}</td>
+                    <td class="price">${service.car}</td>
+                    <td class="price">${service.van}</td>
+                    <td>${service.costPrice || 0}</td>
+                    <td>${calculateProfit(service.car, service.costPrice)}</td>
+                `;
+            });
+        }
+
+        function updatePhuketTransferTable() {
+            const tbody = document.getElementById('phuketTransferTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            serviceData['phuket-transfer'].forEach(service => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${service.name.replace('Krabi Airport to ', '').replace('Move hotel 1 way - ', '')}</td>
+                    <td class="price">${service.car}</td>
+                    <td class="price">${service.van}</td>
+                    <td>${service.costPrice || 0}</td>
+                    <td>${calculateProfit(service.car, service.costPrice)}</td>
+                `;
+            });
+        }
+
+        function updateKrabiTourTable() {
+            const tbody = document.getElementById('krabiTourTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            serviceData['krabi-tour'].forEach(service => {
+                const row = tbody.insertRow();
+                const notes = service.npFeeAdl ? `Ex. NP Fee: ADL ${service.npFeeAdl}, CHD ${service.npFeeChd}` : 'Includes transfer';
+                row.innerHTML = `
+                    <td>${service.name}</td>
+                    <td class="price">${service.adult}</td>
+                    <td class="price">${service.child}</td>
+                    <td>${service.costPrice || 0}</td>
+                    <td>${calculateProfit(service.adult, service.costPrice)}</td>
+                    <td>${notes}</td>
+                `;
+            });
+        }
+
+        function updatePhuketTourTable() {
+            const tbody = document.getElementById('phuketTourTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            serviceData['phuket-tour'].forEach(service => {
+                const row = tbody.insertRow();
+                const notes = service.npFeeAdl ? `Ex. NP Fee: ADL ${service.npFeeAdl}, CHD ${service.npFeeChd}` : 'Various show times';
+                row.innerHTML = `
+                    <td>${service.name}</td>
+                    <td class="price">${service.adult}</td>
+                    <td class="price">${service.child}</td>
+                    <td>${service.costPrice || 0}</td>
+                    <td>${calculateProfit(service.adult, service.costPrice)}</td>
+                    <td>${notes}</td>
+                `;
+            });
+        }
+
+        function updateFerryTable() {
+            const tbody = document.getElementById('ferryTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            serviceData.ferry.forEach(service => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${service.name}</td>
+                    <td class="price">${service.adult}</td>
+                    <td class="price">${service.child}</td>
+                    <td>${service.costPrice || 0}</td>
+                    <td>${calculateProfit(service.adult, service.costPrice)}</td>
+                    <td>Multiple times daily</td>
+                `;
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateServices();
+            updateAllTables();
+        });
+    </script>
+</body>
+</html>
